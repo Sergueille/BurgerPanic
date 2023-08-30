@@ -1,0 +1,67 @@
+using System;
+using System.Collections.Generic;
+using System.Runtime.InteropServices;
+using UnityEngine;
+
+public class Steak : InteractableObject
+{
+    [SerializeField] SpriteRenderer topSprite;
+    [SerializeField] SpriteRenderer bottomSprite;
+
+    [SerializeField] Gradient topGradient;
+    [SerializeField] Gradient bottomGradient;
+
+    [SerializeField] float otherSideGrillProportion = 0.4f;
+
+    [NonSerialized] public float top = 0;
+    [NonSerialized] public float bottom = 0;
+
+    protected override void Start()
+    {
+        Init();
+    }
+
+    public override void Init()
+    {
+        base.Init();
+        specialGrill = true;
+    }
+
+    protected override void Update()
+    {
+        base.Update();
+
+        bool x = transform.position.x < GameManager.i.grillMaxX - interactRadius;
+        bool y = transform.position.y < GameManager.i.grillY + interactRadius * 1.1f;
+
+        if (x && y) // On grill
+        {
+            bool upsideDown = transform.eulerAngles.z < -90 || transform.eulerAngles.z > 90;
+            float amount = Time.deltaTime / grillDuration;
+
+            if (upsideDown)
+            {
+                top += amount;
+                bottom += amount * otherSideGrillProportion;
+            }
+            else
+            {
+                bottom += amount;
+                top += amount * otherSideGrillProportion;
+            }
+        }
+
+        topSprite.color = topGradient.Evaluate(top);
+        bottomSprite.color = bottomGradient.Evaluate(bottom);
+    }
+    
+    public override void SetBehindCurtain(bool isBehind)
+    {
+        base.SetBehindCurtain(isBehind);
+
+        topSprite.sortingLayerName = isBehind ? "Background" : "Default";
+        topSprite.sortingOrder = isBehind ? startLayerOrder - 300 : startLayerOrder;
+        bottomSprite.sortingLayerName = isBehind ? "Background" : "Default";
+        bottomSprite.sortingOrder = isBehind ? startLayerOrder - 300 : startLayerOrder;
+    }
+}
