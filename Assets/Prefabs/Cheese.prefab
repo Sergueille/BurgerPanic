@@ -137,8 +137,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   interactRadius: 0.6
-  ingredient: 0
-  grillDuration: 10
+  ingredient: 8
+  itemType: 0
+  grillDuration: 5
+  becomeHotWhenGrilled: 0
   sprite: {fileID: 980606561649465169}
   preventRotationWhenGrabbing: 0
   preventMovementOnTable: 0

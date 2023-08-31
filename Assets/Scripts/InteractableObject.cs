@@ -14,6 +14,7 @@ public class InteractableObject : MonoBehaviour
     private bool initialized = false;
 
     [SerializeField] protected float grillDuration;
+    [SerializeField] protected bool becomeHotWhenGrilled = false;
     protected bool specialGrill = false;
     [NonSerialized] public float grillAmount;
 
@@ -22,7 +23,7 @@ public class InteractableObject : MonoBehaviour
     [SerializeField] private bool preventRotationWhenGrabbing = false;
     [SerializeField] private bool preventMovementOnTable = false;
 
-    private List<SauceDrop> attachedSauceDrops = new List<SauceDrop>();
+    [NonSerialized] public List<SauceDrop> attachedSauceDrops = new List<SauceDrop>();
 
     private Color startColor;
     private Rigidbody2D rb;
@@ -30,6 +31,10 @@ public class InteractableObject : MonoBehaviour
 
     protected int startLayerOrder;
     private int startLayer;
+
+    protected ParticleSystem whiteSmoke;
+    protected ParticleSystem blackSmoke;
+    protected bool wasOnGrillLastFrame;
 
     protected virtual void Start()
     {
@@ -52,6 +57,11 @@ public class InteractableObject : MonoBehaviour
 
         rb = gameObject.GetComponent<Rigidbody2D>();
 
+        whiteSmoke = Instantiate(GameManager.i.whiteSmoke, transform).GetComponent<ParticleSystem>();
+        whiteSmoke.transform.localPosition = Vector3.zero;
+        blackSmoke = Instantiate(GameManager.i.blackSmoke, transform).GetComponent<ParticleSystem>();
+        blackSmoke.transform.localPosition = Vector3.zero;
+
         initialized = true;
     }
 
@@ -72,7 +82,7 @@ public class InteractableObject : MonoBehaviour
         {
             rb.isKinematic = false;
             targetJoin.target = (Vector2)GameManager.i.mainCamera.ScreenToWorldPoint(Input.mousePosition);
-            gameObject.layer = LayerMask.NameToLayer("Grabbed");
+            Util.SetLayerRecursive(gameObject, LayerMask.NameToLayer("Grabbed"));
         }
         else
         {
@@ -91,25 +101,46 @@ public class InteractableObject : MonoBehaviour
 
             if (isTouchingGrabbed && isOverGrabbed && !Input.GetMouseButtonUp(0)) // Release if mouse up
             {
-                gameObject.layer = LayerMask.NameToLayer("TouchingGrabbed");
+                Util.SetLayerRecursive(gameObject, LayerMask.NameToLayer("TouchingGrabbed"));
             }
             else
             {
-                gameObject.layer = startLayer;
+                Util.SetLayerRecursive(gameObject, startLayer);
             }
         }
 
         bool x = transform.position.x < GameManager.i.grillMaxX - interactRadius;
         bool y = transform.position.y < GameManager.i.grillY + interactRadius;
+        bool onGrill = !specialGrill && x && y;
 
-        if (!specialGrill && x && y) // On grill
+        if (onGrill) 
         {
             grillAmount += Time.deltaTime / grillDuration;
 
             if (grillAmount > 1) grillAmount = 1;
+
+            if (!wasOnGrillLastFrame && !becomeHotWhenGrilled)
+            {
+                blackSmoke.Play();
+            }
         }
 
-        sprite.color = startColor * new Color(1 - grillAmount, 1 - grillAmount, 1 - grillAmount, 1);
+        if (!onGrill && !specialGrill)
+            blackSmoke.Stop();
+
+        if (becomeHotWhenGrilled)
+        {
+            sprite.color = startColor * new Color(1, 1 - grillAmount * 0.5f, 1 - grillAmount * 0.5f, 1);
+        }
+        else
+        {
+            sprite.color = startColor * new Color(1 - grillAmount, 1 - grillAmount, 1 - grillAmount, 1);
+        }
+
+        blackSmoke.transform.rotation = Quaternion.identity;
+        whiteSmoke.transform.rotation = Quaternion.identity;
+
+        wasOnGrillLastFrame = onGrill;
     }
 
     public void OnGrabbed()

@@ -10,7 +10,8 @@ public enum Ingredient {
     salad       = 0x01,
     tomato      = 0x02,
     pickles     = 0x04,
-    maxValue    = 0x08,
+    cheese      = 0x08,
+    maxValue    = 0x10,
 }
 
 public enum SauceType {
@@ -43,7 +44,8 @@ public enum ErrorType
     notEnoughIngredient     = 0x20000,
     sauceOnPlate            = 0x40000, // arg is 1 per sauce objects
     tooMuchSauce            = 0x80000, // arg is 1 per sauce objects
-    maxValue                = 0x100000,
+    invalidSauce             = 0x100000, // arg is 1 per sauce objects
+    maxValue                = 0x200000,
 }
 
 public enum BurgerItemType {
@@ -73,6 +75,8 @@ public class GameManager : MonoBehaviour
     public int[] burgerCountForLevel;
     public int expectedBurgerCount = 2; 
     public float levelTime = 60 * 3; 
+    public int minNote = 10; 
+    public Vector2Int sauceQuantities = new Vector2Int(10, 29); 
 
     public Vector2 steakGrillRange = new Vector2(0.4f, 0.6f);
     public float offCenterTolerance = 0.9f;
@@ -83,8 +87,14 @@ public class GameManager : MonoBehaviour
     [NonSerialized] public int currentLevel = 0;
     [NonSerialized] public int currentBurgerCount;
 
+    public GameObject whiteSmoke;
+    public GameObject blackSmoke;
+
     private List<BurgerError>[] errors;
     private int[] notes;
+
+    private float levelStartTime;
+    [NonSerialized] public bool playing = true;
 
     [Header("UI")]
 
@@ -100,6 +110,10 @@ public class GameManager : MonoBehaviour
     [SerializeField] private Text ticketTextPrefab;
     [SerializeField] private float ticketLineHeight = 80;
     [SerializeField] private CanvasGroup overlay;
+    [SerializeField] private Text timerText;
+    [SerializeField] private RectTransform menu;
+    [SerializeField] private CanvasGroup transition;
+
 
     private void Awake()
     {
@@ -108,56 +122,106 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
-        currentLevel = 0;
         burgerUIs = new BurgerUI[expectedBurgerCount];
         expectedBurgers = new Burger[expectedBurgerCount];
 
         ticket.gameObject.SetActive(false);
         overlay.alpha = 0;
+        // transition.alpha = 0;
 
+        currentLevel = 0;
         StartCoroutine(InitLevel());
+        
+        // menu.gameObject.SetActive(true);
+        // StartCoroutine(StartGame());
     }
 
     private void Update()
     {
         Vector2 mousePos = mainCamera.ScreenToWorldPoint(Input.mousePosition);
 
-        if (Input.GetMouseButtonDown(0))
+        if (playing)
         {
-            InteractableObject nearest = null;
-            float nearestDist = float.MaxValue;
-
-            // Iterate through objects and get nearest
-            foreach (InteractableObject obj in interactableObjects)
+            if (Input.GetMouseButtonDown(0))
             {
-                float sqrDist = (mousePos - (Vector2)obj.transform.position).sqrMagnitude;
+                InteractableObject nearest = null;
+                float nearestDist = float.MaxValue;
 
-                if (sqrDist > obj.interactRadius * obj.interactRadius) continue;
-
-                if (sqrDist < nearestDist)
+                // Iterate through objects and get nearest
+                foreach (InteractableObject obj in interactableObjects)
                 {
-                    nearestDist = sqrDist;
-                    nearest = obj;
+                    float sqrDist = (mousePos - (Vector2)obj.transform.position).sqrMagnitude;
+
+                    if (sqrDist > obj.interactRadius * obj.interactRadius) continue;
+
+                    if (sqrDist < nearestDist)
+                    {
+                        nearestDist = sqrDist;
+                        nearest = obj;
+                    }
+                }
+
+                grabbedObject = nearest;
+                if (grabbedObject != null)
+                    grabbedObject.OnGrabbed();
+
+                if (grabbedObject == null)
+                {
+                    foreach (IngredientGenerator g in ingredientGenerators)
+                    {
+                        if (g.TestGenerator())
+                            break;
+                    }
                 }
             }
-
-            grabbedObject = nearest;
-            if (grabbedObject != null)
-                grabbedObject.OnGrabbed();
-
-            if (grabbedObject == null)
+            else if (Input.GetMouseButtonUp(0))
             {
-                foreach (IngredientGenerator g in ingredientGenerators)
-                {
-                    if (g.TestGenerator())
-                        break;
-                }
+                grabbedObject = null;
             }
         }
-        else if (Input.GetMouseButtonUp(0))
+
+        // Update timer
+        float t = Time.time - levelStartTime;
+        float remaining = levelTime - t;
+
+        if (remaining < 0) remaining = 0;
+
+        float minutes = Mathf.FloorToInt(remaining / 60);
+        float seconds = Mathf.FloorToInt(remaining - 60 * minutes);
+
+        timerText.text = $"{minutes.ToString().PadLeft(2, '0')}:{seconds.ToString().PadLeft(2, '0')}";
+
+        if (remaining < 30 && Mathf.FloorToInt(remaining * 2) % 2 == 0)
         {
-            grabbedObject = null;
+            timerText.color = new Color(1, 0.1f, 0.1f);
         }
+        else
+        {
+            timerText.color = new Color(1, 1, 1);
+        }
+
+        if (playing)
+        {
+            if (remaining == 0)
+            {
+                StartCoroutine(LevelEnd());
+            }
+        }
+    }
+
+    public IEnumerator StartGame()
+    {
+        LeanTween.alphaCanvas(transition, 1, 1);
+
+        yield return new WaitForSeconds(1);
+
+        menu.gameObject.SetActive(false);
+        LeanTween.alphaCanvas(transition, 0, 1);
+        
+        yield return new WaitForSeconds(1);
+
+        currentLevel = 0;
+        StartCoroutine(InitLevel());
     }
 
     public IEnumerator InitLevel()
@@ -166,6 +230,8 @@ public class GameManager : MonoBehaviour
         notes = new int[burgerCountForLevel[currentLevel]];
 
         currentBurgerCount = 0;
+        levelStartTime = Time.time;
+        playing = true;
 
         levelText.text = "LEVEL " + (currentLevel + 1).ToString();
         levelText.color = new Color(1, 1, 1, 0);
@@ -273,6 +339,10 @@ public class GameManager : MonoBehaviour
         int steakCount = 0;
         float plateX = 0;
 
+        int ketchupAmount = 0;
+        int mustardAmount = 0;
+        int sauceOnPlate = 0;
+
         List<BurgerError> errors = new List<BurgerError>();
         errorList = errors;
 
@@ -374,6 +444,21 @@ public class GameManager : MonoBehaviour
                     AddError(ErrorType.offCenteredElement, offCenterAmount - offCenterTolerance);
                 }
             }
+
+            Debug.Log( obj.attachedSauceDrops.Count);
+
+            foreach (SauceDrop drop in obj.attachedSauceDrops)
+            {
+                if (drop.type == SauceType.ketchup) 
+                    ketchupAmount++;
+                else if (drop.type == SauceType.mustard) 
+                    mustardAmount++;
+
+                if (obj.itemType == BurgerItemType.plate)
+                {
+                    sauceOnPlate++;
+                }
+            }
         }
 
         if (!donePlate) 
@@ -381,6 +466,36 @@ public class GameManager : MonoBehaviour
 
         if (!doneBreadBottom || !doneBreadTop) 
             AddError(ErrorType.missingBread);
+
+        if (sauceOnPlate > 0)
+            AddError(ErrorType.sauceOnPlate, sauceOnPlate);
+
+        bool needKetchup = (burger.sauces & (int)SauceType.ketchup) > 0;
+        bool needMustard = (burger.sauces & (int)SauceType.mustard) > 0;
+
+        if (needKetchup)
+        {
+            if (ketchupAmount < sauceQuantities.x)
+                AddError(ErrorType.notEnoughSauce, sauceQuantities.x - ketchupAmount);
+            if (ketchupAmount > sauceQuantities.y)
+                AddError(ErrorType.tooMuchSauce, ketchupAmount - sauceQuantities.y);
+        }
+        else if (ketchupAmount > 0)
+        {
+            AddError(ErrorType.invalidSauce, ketchupAmount);
+        }
+
+        if (needMustard)
+        {
+            if (mustardAmount < sauceQuantities.x)
+                AddError(ErrorType.notEnoughSauce, sauceQuantities.x - mustardAmount);
+            if (mustardAmount > sauceQuantities.y)
+                AddError(ErrorType.tooMuchSauce, mustardAmount - sauceQuantities.y);
+        }
+        else if (mustardAmount > 0)
+        {
+            AddError(ErrorType.invalidSauce, mustardAmount);
+        }
 
         for (int i = 1; i < (int)Ingredient.maxValue; i <<= 1)
         {
@@ -461,6 +576,8 @@ public class GameManager : MonoBehaviour
 
     private IEnumerator LevelEnd()
     {
+        playing = false;
+
         LeanTween.alphaCanvas(overlay, 1, 1.0f);
         yield return new WaitForSeconds(0.5f);
 
@@ -470,31 +587,74 @@ public class GameManager : MonoBehaviour
 
         LeanTween.move(ticket.gameObject, startPos, 0.5f).setEaseOutCubic();
 
+        // Get average
+        int avg = 0;
+        for (int i = 0; i < currentBurgerCount; i++)
+            avg += notes[i];
+
+        avg = Mathf.RoundToInt(avg / (float)currentBurgerCount);
+
         // Clear ticket
         Util.RemoveChildren(ticketList);
 
         float ticketSize = 0;
 
-        AddTextOnTicket($"Burger Monarch, Inc. - ${DateTime.Now.ToString("dd/MM/yyyy")}:", ref ticketSize);
+        // Populate ticket list
+        AddTextOnTicket($"Burger Monarch, Inc.", ref ticketSize);
+        AddTextOnTicket($" -- Printed {DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss")}", ref ticketSize);
 
         AddTextOnTicket($"-----------------", ref ticketSize);
         AddTextOnTicket($"Results for level {currentLevel + 1}:", ref ticketSize);
         AddTextOnTicket($"-----------------", ref ticketSize);
 
-        // Populate ticket list
-        for (int i = 0; i < burgerCountForLevel[currentLevel]; i++)
-        {
-            AddTextOnTicket("BURGER #" + (i + 1).ToString() + " : " + notes[i] + "/20", ref ticketSize);
+        bool levelComplete = true;
 
-            foreach (BurgerError err in errors[i])
+        if (currentBurgerCount < burgerCountForLevel[currentLevel])
+        {
+            levelComplete = false;
+
+            AddTextOnTicket($"Failed to deliver all burgers on time!", ref ticketSize);
+            AddTextOnTicket($"({currentBurgerCount}/{burgerCountForLevel[currentLevel]})", ref ticketSize);
+        }
+        else
+        {
+            for (int i = 0; i < currentBurgerCount; i++)
             {
-                AddTextOnTicket($"- {err.GetDesc()} : -{err.GetPoints()}", ref ticketSize);
+                AddTextOnTicket("BURGER #" + (i + 1).ToString() + " : " + notes[i] + "/20", ref ticketSize);
+
+                foreach (BurgerError err in errors[i])
+                {
+                    AddTextOnTicket($"- {err.GetDesc()} : -{err.GetPoints()}", ref ticketSize);
+                }
             }
+        
+            AddTextOnTicket($"-----------------", ref ticketSize);
+            AddTextOnTicket($"AVERAGE NOTE: {avg}/20", ref ticketSize);
+
+            levelComplete = avg > minNote;
         }
 
-        AddTextOnTicket($"-----------------", ref ticketSize);
-        AddTextOnTicket($"PRESS SPACE TO CONTINUE", ref ticketSize);
-        AddTextOnTicket($"-----------------", ref ticketSize);
+
+
+        if (levelComplete)
+        {
+            currentLevel++;
+
+            AddTextOnTicket($"Level completed!", ref ticketSize);
+            AddTextOnTicket($"-----------------", ref ticketSize);
+            AddTextOnTicket($"PRESS SPACE TO CONTINUE", ref ticketSize);
+            AddTextOnTicket($"-----------------", ref ticketSize);
+        }
+        else
+        {
+            currentLevel = 0;
+
+            AddTextOnTicket($"YOU ARE FIRED!", ref ticketSize);
+            AddTextOnTicket($"-----------------", ref ticketSize);
+            AddTextOnTicket($"PRESS SPACE TO RESTART", ref ticketSize);
+            AddTextOnTicket($"-----------------", ref ticketSize);
+        }
+
 
         ticketPaper.anchoredPosition = Vector2.zero;
 
@@ -524,7 +684,6 @@ public class GameManager : MonoBehaviour
         ticket.transform.position = startPos;
         ticket.gameObject.SetActive(false);
 
-        currentLevel++;
         StartCoroutine(InitLevel());
     }
 
@@ -570,6 +729,8 @@ public struct BurgerError
                 return "Too much sauce";
             case ErrorType.sauceOnPlate:
                 return "Sauce on plate";
+            case ErrorType.invalidSauce:
+                return "Wrong sauce";
             case ErrorType.plateUpsideDown:
                 return "Plate upside down";
             case ErrorType.breadUpsideDown:
@@ -614,15 +775,17 @@ public struct BurgerError
             case ErrorType.missingIngredient:
                 return 7;
             case ErrorType.notEnoughSauce:
-                return Mathf.CeilToInt(0.1f * arg);
+                return Mathf.CeilToInt(0.4f * arg);
             case ErrorType.tooMuchSauce:
                 return Mathf.CeilToInt(0.1f * arg);
             case ErrorType.sauceOnPlate:
+                return Mathf.CeilToInt(0.1f * arg);
+            case ErrorType.invalidSauce:
                 return Mathf.CeilToInt(0.2f * arg);
             case ErrorType.plateUpsideDown:
                 return 4;
             case ErrorType.breadUpsideDown:
-                return 3;
+                return 2;
             case ErrorType.burnedIngredient:
                 return Mathf.CeilToInt(6 * arg);
             case ErrorType.burnedSteak:
@@ -632,7 +795,7 @@ public struct BurgerError
             case ErrorType.invalidIngredient:
                 return 7;
             case ErrorType.offCenteredElement:
-                return Mathf.CeilToInt(4 * arg);
+                return Mathf.CeilToInt(2 * arg);
             case ErrorType.ingredientOutsideBurger:
                 return 3;
             case ErrorType.twoPlates:

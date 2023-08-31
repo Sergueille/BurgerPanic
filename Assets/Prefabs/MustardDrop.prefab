@@ -19,6 +19,10 @@ PrefabInstance:
       propertyPath: m_Color.r
       value: 0.9215687
       objectReference: {fileID: 0}
+    - target: {fileID: 8342993781879699774, guid: b8e699911e22e324fa0f3dab2eac13d2, type: 3}
+      propertyPath: type
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 8956397589562642967, guid: b8e699911e22e324fa0f3dab2eac13d2, type: 3}
       propertyPath: m_Name
       value: MustardDrop

@@ -11,6 +11,10 @@ PrefabInstance:
       propertyPath: m_Color.a
       value: 0.29803923
       objectReference: {fileID: 0}
+    - target: {fileID: 8342993781879699774, guid: b8e699911e22e324fa0f3dab2eac13d2, type: 3}
+      propertyPath: type
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 8956397589562642967, guid: b8e699911e22e324fa0f3dab2eac13d2, type: 3}
       propertyPath: m_Name
       value: KetchupDrop

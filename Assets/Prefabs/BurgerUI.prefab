@@ -379,6 +379,7 @@ MonoBehaviour:
   salad: {fileID: -1455010086, guid: e0a972ed64d3b124d85936e981ecfe56, type: 3}
   tomato: {fileID: 1095464983, guid: e0a972ed64d3b124d85936e981ecfe56, type: 3}
   pickles: {fileID: -1267832705, guid: e0a972ed64d3b124d85936e981ecfe56, type: 3}
+  cheese: {fileID: -43923708, guid: e0a972ed64d3b124d85936e981ecfe56, type: 3}
   ketchup: {fileID: 18868597, guid: 62d5cf6ae41450c4aa7a506e47dc4e44, type: 3}
   mustard: {fileID: 1693606952, guid: 62d5cf6ae41450c4aa7a506e47dc4e44, type: 3}
   transitionY: 250

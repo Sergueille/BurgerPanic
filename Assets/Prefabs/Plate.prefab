@@ -140,7 +140,8 @@ MonoBehaviour:
   interactRadius: 0.8
   ingredient: 0
   itemType: 1
-  grillDuration: 1e+9
+  grillDuration: 20
+  becomeHotWhenGrilled: 1
   sprite: {fileID: 2415032581532664433}
   preventRotationWhenGrabbing: 1
   preventMovementOnTable: 1

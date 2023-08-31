@@ -56,7 +56,25 @@ public class Steak : InteractableObject
             }
 
             if (top > 1) top = 1; 
-            if (bottom > 1) bottom = 1; 
+            if (bottom > 1) bottom = 1;
+
+            if (top > 0.8f || bottom > 0.8f)
+            {
+                whiteSmoke.Stop();
+                if (!blackSmoke.isPlaying)
+                    blackSmoke.Play();
+            } 
+            else
+            {
+                blackSmoke.Stop();
+                if (!whiteSmoke.isPlaying)
+                    whiteSmoke.Play();
+            }
+        }
+        else
+        {
+            blackSmoke.Stop();
+            whiteSmoke.Stop();
         }
 
         topSprite.color = topGradient.Evaluate(top);

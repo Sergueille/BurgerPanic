@@ -16,6 +16,7 @@ public class BurgerUI : MonoBehaviour
     [SerializeField] private Sprite salad;
     [SerializeField] private Sprite tomato;
     [SerializeField] private Sprite pickles;
+    [SerializeField] private Sprite cheese;
     [SerializeField] private Sprite ketchup;
     [SerializeField] private Sprite mustard;
 
@@ -44,6 +45,8 @@ public class BurgerUI : MonoBehaviour
             AddIngredient(salad);
         if ((burger.ingredients & (int)Ingredient.tomato) > 0) 
             AddIngredient(tomato); 
+        if ((burger.ingredients & (int)Ingredient.cheese) > 0) 
+            AddIngredient(cheese); 
 
         if ((burger.sauces & (int)SauceType.ketchup) > 0) 
             AddSauce(ketchup);

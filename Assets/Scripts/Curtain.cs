@@ -30,6 +30,8 @@ public class Curtain : MonoBehaviour
 
     private void Update()
     {
+        if (!GameManager.i.playing) return;
+
         Vector2 mousePos = GameManager.i.mainCamera.ScreenToWorldPoint(Input.mousePosition);
 
         if (Input.GetMouseButtonDown(0))

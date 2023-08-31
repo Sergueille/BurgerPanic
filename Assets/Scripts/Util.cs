@@ -23,6 +23,16 @@ public static class Util
         return null;
     }
 
+    public static void SetLayerRecursive(GameObject obj, int layer)
+    {
+        obj.layer = layer;
+
+        foreach (Transform child in obj.transform)
+        {
+            SetLayerRecursive(child.gameObject, layer);
+        }
+    }
+
     /// <summary>
     /// Toggles the specified amount of random flags on the enum
     /// Assumes that the enum has 'none = 0' and 'maxValue' flags
@@ -58,7 +68,7 @@ public static class Util
     {
         foreach (Transform child in t)
         {
-            Object.Destroy(child);
+            Object.Destroy(child.gameObject);
         }
     }
 }
