@@ -20,8 +20,11 @@ public class Curtain : MonoBehaviour
 
     private bool wasClosedLastFrame = false;
 
+    private List<InteractableObject> curtainObjects;
+
     private void Start()
     {
+        curtainObjects = new List<InteractableObject>();
         curtainSprite.transform.localPosition = new Vector3(0, minY, 0); 
     }
 
@@ -83,7 +86,16 @@ public class Curtain : MonoBehaviour
 
             if (closeEnough && isClosed && !wasClosedLastFrame && isBurgerItem)
             {
-                Destroy(obj.gameObject);
+                curtainObjects.Add(obj);
+            }
+        }
+
+        if (isClosed && !wasClosedLastFrame)
+        {
+            if (curtainObjects.Count > 0)
+            {
+                GameManager.i.TestBurger(curtainObjects);
+                curtainObjects.Clear();
             }
         }
 

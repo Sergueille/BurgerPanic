@@ -23,9 +23,13 @@ public static class Util
         return null;
     }
 
+    /// <summary>
+    /// Toggles the specified amount of random flags on the enum
+    /// Assumes that the enum has 'none = 0' and 'maxValue' flags
+    /// </summary>
     public static int GetRandomFlags<T>(int flagCount) where T : System.Enum
     {   
-        int maxVal = typeof(T).GetEnumValues().Length - 1; // Ignore none
+        int maxVal = typeof(T).GetEnumValues().Length - 2; // Ignore none
 
         if (flagCount > maxVal) throw new System.Exception("Too much flags!!");
 
@@ -43,5 +47,18 @@ public static class Util
         }
 
         return sum;
+    }
+
+    public static bool IsUpsideDown(float angle, float maxAngle)
+    {
+        return Mathf.Abs(Mathf.DeltaAngle(angle, 0)) > maxAngle;
+    }
+
+    public static void RemoveChildren(Transform t)
+    {
+        foreach (Transform child in t)
+        {
+            Object.Destroy(child);
+        }
     }
 }

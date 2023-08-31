@@ -87,8 +87,9 @@ public class InteractableObject : MonoBehaviour
             }
 
             bool isTouchingGrabbed = rb.IsTouchingLayers(LayerMask.GetMask("Grabbed", "TouchingGrabbed"));
+            bool isOverGrabbed = GameManager.i.grabbedObject == null ? false : GameManager.i.grabbedObject.transform.position.y < transform.position.y;
 
-            if (isTouchingGrabbed && !Input.GetMouseButtonUp(0)) // Release if moue up
+            if (isTouchingGrabbed && isOverGrabbed && !Input.GetMouseButtonUp(0)) // Release if mouse up
             {
                 gameObject.layer = LayerMask.NameToLayer("TouchingGrabbed");
             }
@@ -104,6 +105,8 @@ public class InteractableObject : MonoBehaviour
         if (!specialGrill && x && y) // On grill
         {
             grillAmount += Time.deltaTime / grillDuration;
+
+            if (grillAmount > 1) grillAmount = 1;
         }
 
         sprite.color = startColor * new Color(1 - grillAmount, 1 - grillAmount, 1 - grillAmount, 1);

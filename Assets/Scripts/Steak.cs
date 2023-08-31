@@ -21,6 +21,11 @@ public class Steak : InteractableObject
         Init();
     }
 
+    protected override void OnDestroy()
+    {
+        base.OnDestroy();
+    }
+
     public override void Init()
     {
         base.Init();
@@ -49,6 +54,9 @@ public class Steak : InteractableObject
                 bottom += amount;
                 top += amount * otherSideGrillProportion;
             }
+
+            if (top > 1) top = 1; 
+            if (bottom > 1) bottom = 1; 
         }
 
         topSprite.color = topGradient.Evaluate(top);
