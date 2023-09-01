@@ -34,7 +34,7 @@ public class InteractableObject : MonoBehaviour
 
     protected ParticleSystem whiteSmoke;
     protected ParticleSystem blackSmoke;
-    protected bool wasOnGrillLastFrame;
+    public bool wasOnGrillLastFrame;
 
     protected virtual void Start()
     {
@@ -109,7 +109,7 @@ public class InteractableObject : MonoBehaviour
             }
         }
 
-        bool x = transform.position.x < GameManager.i.grillMaxX - interactRadius;
+        bool x = transform.position.x < GameManager.i.grillMaxX - interactRadius * 0.7f;
         bool y = transform.position.y < GameManager.i.grillY + interactRadius;
         bool onGrill = !specialGrill && x && y;
 

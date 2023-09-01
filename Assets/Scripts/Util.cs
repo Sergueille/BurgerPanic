@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public static class Util
 {
@@ -70,5 +71,19 @@ public static class Util
         {
             Object.Destroy(child.gameObject);
         }
+    }
+
+    public static LTDescr TweenMaterialValue(Material mat, string propName, float from, float to, float time)
+    {
+        return LeanTween.value(from, to, time).setOnUpdate(t => {
+            mat.SetFloat(propName, t);
+        });
+    }
+
+    public static LTDescr TweenTextColor(Text text, Color to, float time)
+    {
+        return LeanTween.value(text.gameObject, text.color, to, time).setOnUpdate(color => {
+            text.color = color;
+        });
     }
 }

@@ -36,7 +36,7 @@ public class Steak : InteractableObject
     {
         base.Update();
 
-        bool x = transform.position.x < GameManager.i.grillMaxX - interactRadius;
+        bool x = transform.position.x < GameManager.i.grillMaxX - interactRadius * 0.7f;
         bool y = transform.position.y < GameManager.i.grillY + interactRadius * 1.1f;
 
         if (x && y) // On grill
@@ -70,6 +70,8 @@ public class Steak : InteractableObject
                 if (!whiteSmoke.isPlaying)
                     whiteSmoke.Play();
             }
+
+            wasOnGrillLastFrame = true;
         }
         else
         {

@@ -16,9 +16,11 @@ public class Button : MonoBehaviour
 
     private float clickTime = -100;
 
+    public static bool stuckByTimeout = false; // Used by tutorial
+
     private void Update()
     {
-        bool stuckByTimeout = Time.time - clickTime < timeout;
+        stuckByTimeout = Time.time - clickTime < timeout;
 
         if (!stuckByTimeout)
         {
