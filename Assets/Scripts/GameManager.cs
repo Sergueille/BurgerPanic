@@ -848,12 +848,22 @@ public class GameManager : MonoBehaviour
 
         ticketSize += ticketLineHeight;
 
+        AudioSource s = SoundManager.PlaySound("ticketPrinter", 0.8f, 1, true);
+
         float duration = ticketSize / 5 / ticketLineHeight;
         LeanTween.value(ticketPaper.gameObject, 0, ticketSize, duration).setOnUpdate(t => {
             ticketPaper.anchoredPosition = new Vector2(0, t);
         });
 
         yield return new WaitForSeconds(duration);
+
+        s.Stop();
+
+        if (!levelComplete && !tutorial)
+        {
+            SoundManager.PlaySound("beepBeep", 0.4f);
+        }
+
         yield return new WaitWhile(() => !Input.GetKey(KeyCode.Space));
 
         LeanTween.alphaCanvas(overlay, 0, 1.0f);

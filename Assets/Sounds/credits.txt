@@ -3,5 +3,9 @@ freesound.org
 - grill sound: ToniTobe
 - buzzer: Producing_RayLite
 - metal impact, plate impact, food impact: DWOBoyle
+- burning sound: ken788
+- sauce sound: maarten_wez
+- shutters sound: SamuelGremaud
+- bell sound: danarobinsondesignsgmailcom
 
 

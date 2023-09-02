@@ -16,6 +16,8 @@ public class Steak : InteractableObject
     [NonSerialized] public float top = 0;
     [NonSerialized] public float bottom = 0;
 
+    private AudioSource grillSound;
+
     protected override void Start()
     {
         Init();
@@ -71,12 +73,23 @@ public class Steak : InteractableObject
                     whiteSmoke.Play();
             }
 
+            if (grillSound == null)
+            {
+                grillSound = SoundManager.PlaySound("grill", 0.5f, SoundManager.RandPitch(), true);
+            }
+
             wasOnGrillLastFrame = true;
         }
         else
         {
             blackSmoke.Stop();
             whiteSmoke.Stop();
+
+            if (grillSound != null)
+            {
+                SoundManager.FadeAndStop(grillSound, 0.5f);
+                grillSound = null;
+            }
         }
 
         topSprite.color = topGradient.Evaluate(top);

@@ -43,6 +43,8 @@ public class Button : MonoBehaviour
 
     private IEnumerator Spawn()
     {
+        SoundManager.PlaySound("beepBeep", 0.3f);
+
         for (int j = 0; j < objectCount; j++)
         {
             for (int i = 0; i < spawners.Length; i++)

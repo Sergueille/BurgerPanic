@@ -145,6 +145,8 @@ MonoBehaviour:
   sprite: {fileID: 2415032581532664433}
   preventRotationWhenGrabbing: 1
   preventMovementOnTable: 1
+  grabClip: {fileID: 8300000, guid: e801680e50d2f8b47a80d0b24923274c, type: 3}
+  wasOnGrillLastFrame: 0
 --- !u!61 &4589963265367284571
 BoxCollider2D:
   m_ObjectHideFlags: 0

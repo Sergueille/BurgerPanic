@@ -18,6 +18,9 @@ public class Sauce : InteractableObject
 
     private Sprite startSprite;
 
+    private bool pressedLastFrame;
+    private AudioSource sauceSound;
+
     public override void Init()
     {
         base.Init();
@@ -52,11 +55,26 @@ public class Sauce : InteractableObject
                     drop.rb.velocity = velocityAmount * transform.up;
                 }
             }
+
+            if (!pressedLastFrame)
+            {
+                sauceSound = SoundManager.PlaySound("sauce", 0.7f, SoundManager.RandPitch());
+            }
+
+            pressedLastFrame = true;
         }
         else
         {
             spriteRenderer.sprite = startSprite;
             timeSinceLastDrop = Time.time;
+
+            if (sauceSound != null && sauceSound.isPlaying)
+            {
+                SoundManager.FadeAndStop(sauceSound, 0.2f);
+                sauceSound = null;
+            }
+
+            pressedLastFrame = false;
         }
     }
 }

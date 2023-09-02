@@ -23,6 +23,8 @@ public class InteractableObject : MonoBehaviour
     [SerializeField] private bool preventRotationWhenGrabbing = false;
     [SerializeField] private bool preventMovementOnTable = false;
 
+    [SerializeField] private AudioClip grabClip;
+
     [NonSerialized] public List<SauceDrop> attachedSauceDrops = new List<SauceDrop>();
 
     private Color startColor;
@@ -35,6 +37,8 @@ public class InteractableObject : MonoBehaviour
     protected ParticleSystem whiteSmoke;
     protected ParticleSystem blackSmoke;
     public bool wasOnGrillLastFrame;
+
+    private AudioSource burningSound;
 
     protected virtual void Start()
     {
@@ -122,6 +126,21 @@ public class InteractableObject : MonoBehaviour
             if (!wasOnGrillLastFrame && !becomeHotWhenGrilled)
             {
                 blackSmoke.Play();
+
+                // TODO: play burning sound
+            }
+
+            if (burningSound == null)
+            {
+                burningSound = SoundManager.PlaySound("burning", 0.9f, SoundManager.RandPitch(), true);
+            }
+        }
+        else
+        {
+            if (burningSound != null)
+            {
+                SoundManager.FadeAndStop(burningSound, 0.5f);
+                burningSound = null;
             }
         }
 
@@ -151,6 +170,9 @@ public class InteractableObject : MonoBehaviour
 
         Vector2 mousePos = GameManager.i.mainCamera.ScreenToWorldPoint(Input.mousePosition);
         targetJoin.anchor = transform.InverseTransformPoint(mousePos);
+
+        if (grabClip != null)
+            SoundManager.PlaySound(grabClip, 1, SoundManager.RandPitch());
 
         if (preventRotationWhenGrabbing)
         {
