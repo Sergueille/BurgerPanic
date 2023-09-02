@@ -75,6 +75,7 @@ public class GameManager : MonoBehaviour
     public LevelRange steakCount;
     public LevelRange ingredientCount;
     public int[] burgerCountForLevel;
+    public MusicList[] musicsForLevel;
     public int expectedBurgerCount = 2; 
     public float levelTime = 60 * 3; 
     public int minNote = 10; 
@@ -102,6 +103,8 @@ public class GameManager : MonoBehaviour
     [NonSerialized] public bool playing = true;
     [NonSerialized] public bool paused = false;
     [NonSerialized] public bool tutorial = false;
+
+    [SerializeField] private AudioSource musicAudioSource;
 
     [Header("UI")]
 
@@ -349,6 +352,9 @@ public class GameManager : MonoBehaviour
         }
 
         levelText.color = new Color(1, 1, 1, 0);
+
+        musicAudioSource.clip = GetRandomMusic();
+        musicAudioSource.Play();
 
         Vector3 decal = new Vector3(0, -100, 0);
         Vector3 startPos = levelText.transform.position;
@@ -911,7 +917,22 @@ public class GameManager : MonoBehaviour
 
     private int GetBurgerCountForLevel()
     {
-        return tutorial ? 1 : burgerCountForLevel[currentLevel];
+        if (tutorial) return 1;
+
+        return currentLevel >= burgerCountForLevel.Length ? burgerCountForLevel[burgerCountForLevel.Length - 1] : burgerCountForLevel[currentLevel];
+    }
+
+    private AudioClip GetRandomMusic()
+    {
+        int i = currentLevel;
+
+        if (tutorial)
+            i = 0;
+
+        if (i >= musicsForLevel.Length)
+            i = UnityEngine.Random.Range(0, musicsForLevel.Length);
+
+        return musicsForLevel[i].arr[UnityEngine.Random.Range(0, musicsForLevel[i].arr.Length)];
     }
 }
 
@@ -1037,4 +1058,10 @@ public struct BurgerError
                 throw new System.Exception("Uuh?");
         }
     }
+}
+
+[Serializable]
+public struct MusicList
+{
+    public AudioClip[] arr;
 }

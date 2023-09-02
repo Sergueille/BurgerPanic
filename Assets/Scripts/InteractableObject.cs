@@ -38,7 +38,7 @@ public class InteractableObject : MonoBehaviour
 
     protected ParticleSystem whiteSmoke;
     protected ParticleSystem blackSmoke;
-    public bool wasOnGrillLastFrame;
+    [NonSerialized] public bool wasOnGrillLastFrame;
 
     private AudioSource burningSound;
 
@@ -165,6 +165,8 @@ public class InteractableObject : MonoBehaviour
     private void OnCollisionEnter2D(Collision2D coll)
     {
         if (coll.relativeVelocity.magnitude <= GameManager.i.minVelocityForSound) return;
+
+        if (coll.otherCollider.gameObject.layer == LayerMask.NameToLayer("Drops")) return;
 
         float relativeVelocity = Mathf.Clamp01(coll.relativeVelocity.magnitude / GameManager.i.velocityForMaxSound);
 
