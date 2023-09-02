@@ -2085,6 +2085,7 @@ MonoBehaviour:
   sauceQuantities: {x: 10, y: 34}
   steakGrillRange: {x: 0.4, y: 0.75}
   offCenterTolerance: 0.4
+  velocityForMaxSound: 22
   curtainFloor: {fileID: 139313237}
   whiteSmoke: {fileID: 3292442162903292999, guid: 60d41ebc1269b17468f522b3a1fab8df, type: 3}
   blackSmoke: {fileID: 5629787060337136155, guid: 08f7a5e64f603ab43a5b2c5576b11a35, type: 3}
@@ -5650,6 +5651,8 @@ MonoBehaviour:
   preventRotationWhenGrabbing: 0
   preventMovementOnTable: 0
   grabClip: {fileID: 0}
+  impactClip: {fileID: 8300000, guid: f5d3bdc4edcf0da4cab20687215d42a1, type: 3}
+  impactClipVolume: 0.7
   wasOnGrillLastFrame: 0
 --- !u!1 &1451581448
 GameObject:

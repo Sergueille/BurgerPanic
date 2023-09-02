@@ -140,6 +140,11 @@ MonoBehaviour:
   ingredient: 0
   itemType: 3
   grillDuration: 10
+  becomeHotWhenGrilled: 0
   sprite: {fileID: 451310144932448120}
   preventRotationWhenGrabbing: 0
   preventMovementOnTable: 0
+  grabClip: {fileID: 0}
+  impactClip: {fileID: 8300000, guid: 3356c17cedab539418072e6a5cae5b86, type: 3}
+  impactClipVolume: 1
+  wasOnGrillLastFrame: 0

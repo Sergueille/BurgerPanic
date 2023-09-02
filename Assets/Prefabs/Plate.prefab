@@ -146,6 +146,8 @@ MonoBehaviour:
   preventRotationWhenGrabbing: 1
   preventMovementOnTable: 1
   grabClip: {fileID: 8300000, guid: e801680e50d2f8b47a80d0b24923274c, type: 3}
+  impactClip: {fileID: 8300000, guid: e0bcbbb43c4c959429c653b4aec847fc, type: 3}
+  impactClipVolume: 0.8
   wasOnGrillLastFrame: 0
 --- !u!61 &4589963265367284571
 BoxCollider2D:

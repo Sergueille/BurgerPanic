@@ -24,6 +24,8 @@ public class InteractableObject : MonoBehaviour
     [SerializeField] private bool preventMovementOnTable = false;
 
     [SerializeField] private AudioClip grabClip;
+    [SerializeField] private AudioClip impactClip;
+    [SerializeField] private float impactClipVolume = 1;
 
     [NonSerialized] public List<SauceDrop> attachedSauceDrops = new List<SauceDrop>();
 
@@ -126,8 +128,6 @@ public class InteractableObject : MonoBehaviour
             if (!wasOnGrillLastFrame && !becomeHotWhenGrilled)
             {
                 blackSmoke.Play();
-
-                // TODO: play burning sound
             }
 
             if (burningSound == null)
@@ -160,6 +160,18 @@ public class InteractableObject : MonoBehaviour
         whiteSmoke.transform.rotation = Quaternion.identity;
 
         wasOnGrillLastFrame = onGrill;
+    }
+
+    private void OnCollisionEnter2D(Collision2D coll)
+    {
+        if (coll.relativeVelocity.magnitude <= GameManager.i.minVelocityForSound) return;
+
+        float relativeVelocity = Mathf.Clamp01(coll.relativeVelocity.magnitude / GameManager.i.velocityForMaxSound);
+
+        if (impactClip != null)
+        {
+            SoundManager.PlaySound(impactClip, relativeVelocity * impactClipVolume, SoundManager.RandPitch());
+        }
     }
 
     public void OnGrabbed()

@@ -83,6 +83,9 @@ public class GameManager : MonoBehaviour
     public Vector2 steakGrillRange = new Vector2(0.4f, 0.6f);
     public float offCenterTolerance = 0.9f;
 
+    public float minVelocityForSound = 0.2f;
+    public float velocityForMaxSound = 1.0f;
+
     public Collider2D curtainFloor;
 
     [NonSerialized] public Burger[] expectedBurgers;
@@ -139,6 +142,8 @@ public class GameManager : MonoBehaviour
         transition.alpha = 0;
         levelText.text = "";
         resumeButton.gameObject.SetActive(false);
+
+        underlineMaterial.SetFloat("_Threshold", -0.1f);
        
         StartCoroutine(ShowMenu());
     }
@@ -267,6 +272,7 @@ public class GameManager : MonoBehaviour
     public void SetPause(bool val)
     {
         if (val == paused) return;
+        if (!playing) return;
 
         paused = val;
 
@@ -730,7 +736,7 @@ public class GameManager : MonoBehaviour
         return res;
     }
 
-    public Burger GetTutorialBurger() // TODO
+    public Burger GetTutorialBurger()
     {
         Burger res = new Burger();
 

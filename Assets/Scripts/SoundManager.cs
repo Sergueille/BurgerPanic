@@ -56,8 +56,8 @@ public class SoundManager : MonoBehaviour
 
         if (pos == poolSize) // All already playing
         {
-            pos = 0;
             Debug.LogError("Audio sources pool size exceeded");
+            return null;
         }
 
         AudioSource source = audioSources[pos];
