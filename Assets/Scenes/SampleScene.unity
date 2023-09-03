@@ -977,7 +977,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 666666729
   m_SortingLayer: -1
-  m_SortingOrder: 0
+  m_SortingOrder: 1
   m_Sprite: {fileID: 1953798855, guid: d3d402b5330eccf44b00f1169252914b, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -2191,11 +2191,13 @@ MonoBehaviour:
   - arr:
     - {fileID: 8300000, guid: e0d91d30366ee5d4e9ee25208fa472af, type: 3}
     - {fileID: 8300000, guid: 9e9c0a7c541480645b59c15081cda118, type: 3}
+    - {fileID: 8300000, guid: 25b6252570bd61748aa0f1e8f000bd30, type: 3}
   - arr:
-    - {fileID: 8300000, guid: 8328c72dda61fbc4d89af1931a3f4457, type: 3}
     - {fileID: 8300000, guid: a70e837ea73e5a64aba631ea1b005e3e, type: 3}
+    - {fileID: 8300000, guid: f355ab2beaa5f96488425d56e693576e, type: 3}
   - arr:
     - {fileID: 8300000, guid: f5dfedbd64d41a14ab99a2af2f801a63, type: 3}
+    - {fileID: 8300000, guid: 91e928761c9000c419cdc5c0ee668599, type: 3}
   - arr:
     - {fileID: 8300000, guid: bae1bb8e78cddfc4b901040fd07922f3, type: 3}
   expectedBurgerCount: 2
@@ -8435,7 +8437,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   masterVolume: 1
-  poolSize: 40
+  poolSize: 50
   randPitchAmplitude: 0.1
   clips:
   - {fileID: 8300000, guid: 0c8a74084d8201941a03daeee195ac79, type: 3}

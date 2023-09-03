@@ -40,7 +40,7 @@ public class InteractableObject : MonoBehaviour
     protected ParticleSystem blackSmoke;
     [NonSerialized] public bool wasOnGrillLastFrame;
 
-    private AudioSource burningSound;
+    private SoundManager.SoundHandle burningSound;
 
     protected virtual void Start()
     {
@@ -139,7 +139,7 @@ public class InteractableObject : MonoBehaviour
         {
             if (burningSound != null)
             {
-                SoundManager.FadeAndStop(burningSound, 0.5f);
+                burningSound.FadeAndStop(0.5f);
                 burningSound = null;
             }
         }

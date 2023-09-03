@@ -19,7 +19,7 @@ public class Sauce : InteractableObject
     private Sprite startSprite;
 
     private bool pressedLastFrame;
-    private AudioSource sauceSound;
+    private SoundManager.SoundHandle sauceSound;
 
     public override void Init()
     {
@@ -68,9 +68,9 @@ public class Sauce : InteractableObject
             spriteRenderer.sprite = startSprite;
             timeSinceLastDrop = Time.time;
 
-            if (sauceSound != null && sauceSound.isPlaying)
+            if (sauceSound != null)
             {
-                SoundManager.FadeAndStop(sauceSound, 0.2f);
+                sauceSound.FadeAndStop(0.2f);
                 sauceSound = null;
             }
 

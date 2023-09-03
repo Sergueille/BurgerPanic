@@ -16,7 +16,7 @@ public class Steak : InteractableObject
     [NonSerialized] public float top = 0;
     [NonSerialized] public float bottom = 0;
 
-    private AudioSource grillSound;
+    private SoundManager.SoundHandle grillSound;
 
     protected override void Start()
     {
@@ -87,7 +87,7 @@ public class Steak : InteractableObject
 
             if (grillSound != null)
             {
-                SoundManager.FadeAndStop(grillSound, 0.5f);
+                grillSound.FadeAndStop(0.5f);
                 grillSound = null;
             }
         }

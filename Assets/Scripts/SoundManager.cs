@@ -26,12 +26,12 @@ public class SoundManager : MonoBehaviour
         }
     }
 
-    public static AudioSource PlaySound(AudioClip clip, float volume = 1, float pitch = 1, bool loop = false)
+    public static SoundHandle PlaySound(AudioClip clip, float volume = 1, float pitch = 1, bool loop = false)
     {
         return i.PlaySoundInstance(clip, volume, pitch, loop);
     }
 
-    public static AudioSource PlaySound(string clipName, float volume = 1, float pitch = 1, bool loop = false)
+    public static SoundHandle PlaySound(string clipName, float volume = 1, float pitch = 1, bool loop = false)
     {
         foreach (AudioClip clip in i.clips) // OPTI: use a map or something
         {
@@ -45,7 +45,7 @@ public class SoundManager : MonoBehaviour
         return null;
     }
 
-    public AudioSource PlaySoundInstance(AudioClip clip, float volume = 1, float pitch = 1, bool loop = false)
+    public SoundHandle PlaySoundInstance(AudioClip clip, float volume = 1, float pitch = 1, bool loop = false)
     {
         int pos = 0;
         for (pos = 0; pos < poolSize; pos++) // Loop through all sources
@@ -57,7 +57,19 @@ public class SoundManager : MonoBehaviour
         if (pos == poolSize) // All already playing
         {
             Debug.LogError("Audio sources pool size exceeded");
-            return null;
+
+            pos = 0;
+            float bestImportance = 100000;
+            for (int i = 0; i < poolSize; i++)
+            {
+                float importance = (audioSources[i].loop ? 100 : 0) + audioSources[i].clip.length;
+
+                if (importance < bestImportance)
+                {
+                    bestImportance = importance; // Find the least important sound to replace
+                    pos = i;
+                }
+            }
         }
 
         AudioSource source = audioSources[pos];
@@ -69,7 +81,10 @@ public class SoundManager : MonoBehaviour
         source.loop = loop;
         source.Play();
 
-        return source;
+        return new SoundHandle {
+            source = source,
+            audioClip = clip,
+        };
     }
 
     public static float RandPitch()
@@ -77,10 +92,30 @@ public class SoundManager : MonoBehaviour
         return UnityEngine.Random.Range(1 - i.randPitchAmplitude * 0.5f, 1 + i.randPitchAmplitude * 0.5f);
     }
 
-    public static void FadeAndStop(AudioSource source, float duration)
+    public class SoundHandle
     {
-        LeanTween.value(source.volume, 0, duration).setOnUpdate(t => {
-            source.volume = t;
-        });
+        public AudioClip audioClip;
+        public AudioSource source;
+
+        public void Stop()
+        {
+            if (source != null && source.clip == audioClip)
+            {
+                source.Stop();
+            }
+        }
+
+        public void FadeAndStop(float duration)
+        {
+            if (source == null || source.clip != audioClip || !source.isPlaying) 
+                return;
+
+            AudioSource capturedSource = source;
+
+            LeanTween.value(source.volume, 0, duration).setOnUpdate(t => {
+                capturedSource.volume = t;
+            });
+        }
     }
+
 }

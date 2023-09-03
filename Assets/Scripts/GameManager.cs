@@ -860,7 +860,7 @@ public class GameManager : MonoBehaviour
 
         ticketSize += ticketLineHeight;
 
-        AudioSource s = SoundManager.PlaySound("ticketPrinter", 0.8f, 1, true);
+        SoundManager.SoundHandle h = SoundManager.PlaySound("ticketPrinter", 0.8f, 1, true);
 
         float duration = ticketSize / 5 / ticketLineHeight;
         LeanTween.value(ticketPaper.gameObject, 0, ticketSize, duration).setOnUpdate(t => {
@@ -869,7 +869,7 @@ public class GameManager : MonoBehaviour
 
         yield return new WaitForSeconds(duration);
 
-        s.Stop();
+        h.Stop();
 
         if (!levelComplete && !tutorial)
         {
