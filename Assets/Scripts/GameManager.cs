@@ -934,6 +934,11 @@ public class GameManager : MonoBehaviour
 
         return musicsForLevel[i].arr[UnityEngine.Random.Range(0, musicsForLevel[i].arr.Length)];
     }
+
+     public void QuitGame() // TODO: create buttons and assign for animation
+    {
+        Application.Quit();
+    }
 }
 
 public struct Burger
