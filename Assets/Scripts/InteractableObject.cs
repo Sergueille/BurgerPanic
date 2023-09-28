@@ -28,6 +28,8 @@ public class InteractableObject : MonoBehaviour
     [SerializeField] private float impactClipVolume = 1;
 
     [NonSerialized] public List<SauceDrop> attachedSauceDrops = new List<SauceDrop>();
+    [NonSerialized] public int[] sauceCount;
+    [NonSerialized] public int totalSauceCount;
 
     private Color startColor;
     private Rigidbody2D rb;
@@ -67,6 +69,10 @@ public class InteractableObject : MonoBehaviour
         whiteSmoke.transform.localPosition = Vector3.zero;
         blackSmoke = Instantiate(GameManager.i.blackSmoke, transform).GetComponent<ParticleSystem>();
         blackSmoke.transform.localPosition = Vector3.zero;
+
+        sauceCount = new int[(int)SauceType.maxValue];
+        Array.Fill(sauceCount, 0);
+        totalSauceCount = 0;
 
         initialized = true;
     }
@@ -166,7 +172,7 @@ public class InteractableObject : MonoBehaviour
     {
         if (coll.relativeVelocity.magnitude <= GameManager.i.minVelocityForSound) return;
 
-        if (coll.otherCollider.gameObject.layer == LayerMask.NameToLayer("Drops")) return;
+        if (coll.collider.gameObject.layer == LayerMask.NameToLayer("Drops")) return;
 
         float relativeVelocity = Mathf.Clamp01(coll.relativeVelocity.magnitude / GameManager.i.velocityForMaxSound);
 
@@ -199,11 +205,19 @@ public class InteractableObject : MonoBehaviour
     {
         sprite.sortingLayerName = isBehind ? "Background" : "Default";
         sprite.sortingOrder = isBehind ? startLayerOrder - 300 : startLayerOrder;
+
+        foreach (SauceDrop sauceDrop in attachedSauceDrops) 
+        {
+            sauceDrop.sprite.sortingLayerName = isBehind ? "Background" : "SauceDrops";
+            sauceDrop.sprite.sortingOrder = isBehind ? startLayerOrder - 250 : 0;
+        }
     }
 
     public void AddSauceDrop(SauceDrop drop)
     {
         attachedSauceDrops.Add(drop);
+        sauceCount[(int)drop.type]++;
+        totalSauceCount++;
 
         if (attachedSauceDrops.Count > GameManager.i.maxSauceDropsOnObject)
         {

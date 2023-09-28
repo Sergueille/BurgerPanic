@@ -6,7 +6,7 @@ public class SauceDrop : MonoBehaviour
     public SauceType type;
     public Rigidbody2D rb; 
     [SerializeField] private Collider2D coll; 
-    [SerializeField] private SpriteRenderer sprite; 
+    [SerializeField] public SpriteRenderer sprite; 
 
     [SerializeField] private float duration = 10;
 

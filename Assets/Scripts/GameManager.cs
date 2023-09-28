@@ -615,18 +615,11 @@ public class GameManager : MonoBehaviour
                 }
             }
 
-            foreach (SauceDrop drop in obj.attachedSauceDrops)
-            {
-                if (drop.type == SauceType.ketchup) 
-                    ketchupAmount++;
-                else if (drop.type == SauceType.mustard) 
-                    mustardAmount++;
+            ketchupAmount += obj.sauceCount[(int)SauceType.ketchup];
+            mustardAmount += obj.sauceCount[(int)SauceType.mustard];
 
-                if (obj.itemType == BurgerItemType.plate)
-                {
-                    sauceOnPlate++;
-                }
-            }
+            if (obj.itemType == BurgerItemType.plate)
+                sauceOnPlate += obj.totalSauceCount;
         }
 
         if (!donePlate) 
@@ -813,7 +806,8 @@ public class GameManager : MonoBehaviour
         {
             levelComplete = false;
 
-            AddTextOnTicket($"Failed to deliver all burgers on time!", ref ticketSize);
+            AddTextOnTicket($"Failed to deliver all burgers", ref ticketSize);
+            AddTextOnTicket($"on time!", ref ticketSize);
             AddTextOnTicket($"({currentBurgerCount}/{GetBurgerCountForLevel()})", ref ticketSize);
         }
         else
@@ -1014,55 +1008,35 @@ public struct BurgerError
 
     public int GetPoints()
     {
-        switch (type)
+        int points = type switch // TODO
         {
-            case ErrorType.missingPlate:
-                return 10;
-            case ErrorType.missingBread:
-                return 10;
-            case ErrorType.missingIngredient:
-                return 6;
-            case ErrorType.missingSteak:
-                return 7;
-            case ErrorType.notEnoughSauce:
-                return Mathf.CeilToInt(0.4f * arg);
-            case ErrorType.tooMuchSauce:
-                return Mathf.CeilToInt(0.1f * arg);
-            case ErrorType.sauceOnPlate:
-                return Mathf.CeilToInt(0.1f * arg);
-            case ErrorType.invalidSauce:
-                return Mathf.CeilToInt(0.2f * arg);
-            case ErrorType.plateUpsideDown:
-                return 4;
-            case ErrorType.breadUpsideDown:
-                return 2;
-            case ErrorType.burnedIngredient:
-                return Mathf.CeilToInt(6 * arg);
-            case ErrorType.burnedSteak:
-                return Mathf.CeilToInt(6 * arg);
-            case ErrorType.rawSteak:
-                return Mathf.CeilToInt(6 * arg);
-            case ErrorType.invalidIngredient:
-                return 7;
-            case ErrorType.offCenteredElement:
-                return Mathf.CeilToInt(2 * arg);
-            case ErrorType.ingredientOutsideBurger:
-                return 3;
-            case ErrorType.twoPlates:
-                return 10;
-            case ErrorType.twoBreads:
-                return 10;
-            case ErrorType.plateInBurger:
-                return 10;
-            case ErrorType.wrongBreadPosition:
-                return 7;
-            case ErrorType.tooMuchIngredient:
-                return 3;
-            case ErrorType.notEnoughIngredient:
-                return 3;
-            default:
-                throw new System.Exception("Uuh?");
-        }
+            ErrorType.missingPlate => 10,
+            ErrorType.missingBread => 10,
+            ErrorType.missingIngredient => 6,
+            ErrorType.missingSteak => 7,
+            ErrorType.notEnoughSauce => Mathf.CeilToInt(0.4f * arg),
+            ErrorType.tooMuchSauce => Mathf.CeilToInt(0.1f * arg),
+            ErrorType.sauceOnPlate => Mathf.CeilToInt(0.1f * arg),
+            ErrorType.invalidSauce => Mathf.CeilToInt(0.2f * arg),
+            ErrorType.plateUpsideDown => 4,
+            ErrorType.breadUpsideDown => 2,
+            ErrorType.burnedIngredient => Mathf.CeilToInt(6 * arg),
+            ErrorType.burnedSteak => Mathf.CeilToInt(6 * arg),
+            ErrorType.rawSteak => Mathf.CeilToInt(6 * arg),
+            ErrorType.invalidIngredient => 7,
+            ErrorType.offCenteredElement => Mathf.CeilToInt(2 * arg),
+            ErrorType.ingredientOutsideBurger => 3,
+            ErrorType.twoPlates => 10,
+            ErrorType.twoBreads => 10,
+            ErrorType.plateInBurger => 10,
+            ErrorType.wrongBreadPosition => 7,
+            ErrorType.tooMuchIngredient => 3,
+            ErrorType.notEnoughIngredient => 3,
+            _ => throw new System.Exception("Uuh?"),
+        };
+
+        // Clamp penalities to prevent players from loosing 1k points because they put too much sauce
+        return Mathf.Min(20, points); 
     }
 }
 
