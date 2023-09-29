@@ -27,6 +27,9 @@ public class InteractableObject : MonoBehaviour
     [SerializeField] private AudioClip impactClip;
     [SerializeField] private float impactClipVolume = 1;
 
+    [SerializeField] protected float breakForce = -1;
+    [SerializeField] protected GameObject[] breakDebris;
+
     [NonSerialized] public List<SauceDrop> attachedSauceDrops = new List<SauceDrop>();
     [NonSerialized] public int[] sauceCount;
     [NonSerialized] public int totalSauceCount;
@@ -75,6 +78,12 @@ public class InteractableObject : MonoBehaviour
         totalSauceCount = 0;
 
         initialized = true;
+
+        // Disable debris
+        foreach (GameObject go in breakDebris)
+        {
+            go.SetActive(false);
+        }
     }
 
     protected virtual void OnDestroy()
@@ -170,15 +179,45 @@ public class InteractableObject : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D coll)
     {
-        if (coll.relativeVelocity.magnitude <= GameManager.i.minVelocityForSound) return;
+        bool collidedWithDrop = coll.collider.gameObject.layer == LayerMask.NameToLayer("Drops");
+        if (collidedWithDrop) return;
 
-        if (coll.collider.gameObject.layer == LayerMask.NameToLayer("Drops")) return;
-
-        float relativeVelocity = Mathf.Clamp01(coll.relativeVelocity.magnitude / GameManager.i.velocityForMaxSound);
-
-        if (impactClip != null)
+        // Break
+        if (GameManager.i.grabbedObject != this)
         {
-            SoundManager.PlaySound(impactClip, relativeVelocity * impactClipVolume, SoundManager.RandPitch());
+            if (breakForce > 0 && coll.relativeVelocity.sqrMagnitude > breakForce * breakForce)
+            {
+                bool isHard = Util.GetComponentInParentsRecursive<HardObject>(coll.collider.gameObject) != null;
+
+                if (isHard)
+                {
+                    foreach (GameObject go in breakDebris)
+                    {
+                        go.SetActive(true); // Enable debris
+                        go.transform.parent = null; // Make them independent
+                    }
+
+                    // Remove attached sauce drops
+                    foreach (SauceDrop drop in attachedSauceDrops)
+                    {
+                        Destroy(drop.gameObject);
+                    }
+
+                    gameObject.SetActive(false); // Disable this
+                }
+            }
+        }
+
+        // Impact sound
+        bool impactSound = coll.relativeVelocity.magnitude > GameManager.i.minVelocityForSound;
+        if (impactSound)
+        {
+            float relativeVelocity = Mathf.Clamp01(coll.relativeVelocity.magnitude / GameManager.i.velocityForMaxSound);
+
+            if (impactClip != null)
+            {
+                SoundManager.PlaySound(impactClip, relativeVelocity * impactClipVolume, SoundManager.RandPitch());
+            }
         }
     }
 

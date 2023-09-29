@@ -165,6 +165,8 @@ public class GameManager : MonoBehaviour
                 // Iterate through objects and get nearest
                 foreach (InteractableObject obj in interactableObjects)
                 {
+                    if (!obj.isActiveAndEnabled) continue;
+
                     float sqrDist = (mousePos - (Vector2)obj.transform.position).sqrMagnitude;
 
                     if (sqrDist > obj.interactRadius * obj.interactRadius) continue;
